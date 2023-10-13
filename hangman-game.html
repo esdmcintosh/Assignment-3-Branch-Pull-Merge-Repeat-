@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <style>
+        body {
+            background-image: url(images/hangman.jpg);
+            width: 100%;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        div {
+            width: 940px;
+            /* height: 300px; */
+            background: rgba(198, 209, 204, 0.892);
+            margin: 20px auto;
+            padding: 20px;
+        }
+        h1 {
+            color: rgb(64, 13, 25);
+            text-align: center;
+        }
+    </style>
+    <script>
+        var animalsName = ["cat", "elephant", "shark", "panda"];
+        var countriesName = ["Canada", "Germany", "Iran", "China"];
+        var names = ["David", "Henry", "Anna", "Sophia"];
+        var word, result, mistake, numberMistake, category;
+
+        function resetGame() {
+            word = "";
+            result = [];
+            mistake = [];
+            attempt = 6;
+
+            document.getElementById("word").textContent = "";
+            document.getElementById("output").textContent = "Word:";
+            document.getElementById("mistake").textContent = "Mistakes:";
+            document.getElementById("attempts").textContent = "Attempts Remaining:";
+        }
+
+        function chooseGroup() {
+            resetGame();
+            category = document.getElementById("Groups").value;
+
+            if (category == "animals") {
+                word = animalsName[Math.floor(Math.random() * animalsName.length)].toUpperCase();
+            } else if (category == "names") {
+                word = names[Math.floor(Math.random() * names.length)].toUpperCase();
+            } else {
+                word = countriesName[Math.floor(Math.random() * countriesName.length)].toUpperCase();
+            }
+
+            result = [];
+            for (var i = 0; i < word.length; i++) {
+                result.push("_");
+            }
+
+            mistake = [];
+            attempt = 6;
+            updateUI();
+        }
+
+        function guessLetter() {
+            var letterInput = document.getElementById("letterInput").value;
+            document.getElementById("letterInput").value = "";
+
+            if (!letterInput) {
+                alert("Please enter a valid letter!");
+                return;
+            }
+
+            if (letterInput.length !== 1) {
+                alert("Please enter a single letter!");
+                return;
+            }
+
+            if (mistake.includes(letterInput) || result.includes(letterInput)) {
+                alert("You have already guessed that letter!");
+                return;
+            }
+
+            letterInput = letterInput.toUpperCase();
+
+            if (word.includes(letterInput)) {
+                alert("Your guess is correct!");
+                for (var i = 0; i < word.length; i++) {
+                    if (word[i] === letterInput) {
+                        if ((i === 0) && (category === "names" || category === "countries")) {
+                            result[i] = letterInput.toUpperCase();
+                        } else {
+                            result[i] = letterInput.toLowerCase();
+                        }
+                    }
+                }
+            } else {
+                alert("Your guess is wrong!");
+                mistake.push(letterInput);
+                attempt -= 1;
+            }
+            updateUI();
+
+            if (result.join("").toUpperCase() === word) {
+                alert("Congratulations! You win!");
+            } else if (attempt === 0) {
+                alert("Sorry, you lose!");
+                showWord();
+            }
+
+            updateUI();
+        }
+
+        function showWord() {
+            var wordElement = document.getElementById("word");
+            wordElement.textContent = "The word was: " + word.charAt(0) + word.slice(1).toLowerCase();
+        }
+
+        function updateUI() {
+            document.getElementById("output").textContent = "Word: " + result.join(" ");
+            document.getElementById("mistake").textContent = "Mistakes: " + mistake.join(" ");
+            document.getElementById("attempts").textContent = "Attempts Remaining: " + attempt;
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <h1>The Hangman Game</h1>
+        <h4>Choose the group for guessing:</h4>
+        <select name="groups" id="Groups">
+            <option value="animals">Animal</option>
+            <option value="names">Name</option>
+            <option value="countries">Country</option>
+        </select>
+        <button style="background: palevioletred;" type="button" onclick="chooseGroup()">Submit</button>
+        <p id="demo">You have to guess a word regarding the category you chose:</p>
+        <input type="text" id="letterInput" placeholder="Enter a letter">
+        <button type="button" onclick="guessLetter()">Guess</button>
+        <p id="output">Word:</p>
+        <p id="mistake">Mistakes:</p>
+        <p id="attempts">Attempts Remaining:</p>
+        <p id="word"></p>
+    </div>
+</body>
+</html>
